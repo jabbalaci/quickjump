@@ -1,5 +1,27 @@
 #!/usr/bin/env python3
 
+"""
+QuickJump
+=========
+
+QuickJump allows you to bookmark directories and switch between them easily.
+It's like a URL shortener but it's designed for your local machine.
+
+Installation
+------------
+
+* Copy `quickjump.py` to somewhere.
+* In `quickjump.py`, modify the value of `DB_FILE`. It contains
+  the path of the database file that will be created.
+* Add the content of `function.bash` / `function.zsh` to your shell's
+  settings file (depending on what you use, Bash or ZSH). Modify the
+  variable `QJ` to point on `quickjump.py`.
+* Open a new terminal and issue the command `qj`.
+
+Author: Laszlo Szathmary, jabba.laci@gmail.com, 2019
+GitHub: https://github.com/jabbalaci/quickjump
+"""
+
 import hashlib
 import json
 import os
