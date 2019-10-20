@@ -172,6 +172,19 @@ q) quit
     # endwhile
 
 
+def expand_home(path: str) -> str:
+    """
+    Add support for paths that start with "~/" or "$HOME/".
+    Replace "~" / "$HOME" with the home directory.
+    """
+    if path.startswith("~/"):
+        return HOME + path[1:]
+    if path.startswith("$HOME/"):
+        return HOME + path[1:]
+    # else:
+    return path
+
+
 def find_directory(my_hash: str) -> Tuple[str, int]:
     """
     The database contains pairs of directory names and their corresponding hashes.
@@ -187,7 +200,7 @@ def find_directory(my_hash: str) -> Tuple[str, int]:
         print("# no such bookmark", file=sys.stderr)
         err_code = NOT_FOUND
     #
-    return d2.get(my_hash, os.getcwd()), err_code
+    return expand_home(d2.get(my_hash, os.getcwd())), err_code
 
 
 def main() -> None:
