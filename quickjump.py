@@ -34,6 +34,7 @@ from typing import Dict, List, Tuple
 NOT_FOUND, FOUND = range(2)
 HOME = os.path.expanduser("~")
 DB_FILE = f"{HOME}/Dropbox/quickjump.json"
+VERSION = "0.1.1"
 
 
 def verify_db(db: Dict[str, str]) -> None:
@@ -129,9 +130,9 @@ def go_interactive() -> None:
     db = read_db(DB_FILE)
     list_db(db)
     print("""
-1) create a new bookmark for the current directory
-2) edit the bookmarks
-q) quit
+[1, c]     create a new bookmark for the current directory
+[2, e]     edit the bookmarks
+[q, Enter] quit
 """.strip())
     print()
     while True:
@@ -141,10 +142,10 @@ q) quit
             print()
             print('bye')
             break
-        if inp == 'q':
+        if inp in ('q', ''):
             print('bye')
             break
-        elif inp == '1':
+        elif inp in ('1', 'c'):
             my_cwd = os.getcwd()
             if my_cwd in db.keys():
                 print("Warning! The current directory has already been bookmarked!")
@@ -155,7 +156,7 @@ q) quit
             db[my_cwd] = my_hash
             save_db(DB_FILE, db)
             print(f"{my_hash}\t{my_cwd}")
-        elif inp == '2':
+        elif inp in ('2', 'e'):
             editor = os.getenv("EDITOR")
             cmd = f"{editor} {DB_FILE}"
             os.system(cmd)
@@ -164,8 +165,6 @@ q) quit
             print()
             go_interactive()
             break
-        elif inp == "":
-            continue
         else:
             print("Wat?")
         # endif
@@ -203,6 +202,20 @@ def find_directory(my_hash: str) -> Tuple[str, int]:
     return expand_home(d2.get(my_hash, os.getcwd())), err_code
 
 
+def print_help(file=sys.stderr) -> None:
+    text = f"""
+QuickJump {VERSION}
+
+Usage: qj [alias] [option]
+
+Provide an alias or use one of these options:
+
+-h, --help          show this help
+-l, --list          show list of available aliases
+""".strip()
+    print(text, file=file)
+
+
 def main() -> None:
     """
     Controller.
@@ -211,11 +224,15 @@ def main() -> None:
     If the user asked the list of bookmarks, then show the bookmarks and quit.
     If the user provided a bookmark, then return the corresponding directory path.
     """
-    if len(sys.argv) == 1:
+    args = sys.argv[1:]
+    if len(args) == 0:    # if no command-line parameters are given
         go_interactive()
     else:
-        param = sys.argv[1]
-        if param in ("l", "-l", "list", "--list"):
+        param = args[0]
+        if param in ("-h", "--help"):
+            print_help(file=sys.stderr)
+            print(os.getcwd())
+        elif param in ("-l", "--list"):
             db = read_db(DB_FILE)
             list_db(db, file=sys.stderr)
             print(os.getcwd())
@@ -223,8 +240,7 @@ def main() -> None:
             my_hash = param
             dname, err_code = find_directory(my_hash)
             if err_code == FOUND:
-                q = '"' if ' ' in dname else ''
-                print(f'# cd {q}{dname}{q}', file=sys.stderr)
+                print(f'# cd "{dname}"', file=sys.stderr)
             print(dname)
 
 ##############################################################################
