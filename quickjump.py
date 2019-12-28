@@ -28,7 +28,6 @@ import os
 import random
 import readline
 import sys
-from pprint import pprint
 from typing import Dict, List, Tuple
 
 NOT_FOUND, FOUND = range(2)
@@ -62,7 +61,7 @@ def read_db(fname: str) -> Dict[str, str]:
         with open(fname) as f:
             db = json.load(f)
     except:
-        pass
+        raise
     #
     verify_db(db)
     return db
@@ -115,8 +114,7 @@ def list_db(db: Dict[str, str], file=sys.stdout) -> None:
     """
     List the content of the database in a readable format.
     """
-    for k in sorted(db.keys()):
-        v = db[k]
+    for k, v in db.items():
         print(f"{v}\t{k}", file=file)
     #
     if db and file == sys.stdout:
