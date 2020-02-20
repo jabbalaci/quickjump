@@ -128,9 +128,9 @@ def go_interactive() -> None:
     db = read_db(DB_FILE)
     list_db(db)
     print("""
-[1, c]     create a new bookmark for the current directory
-[2, e]     edit the bookmarks
-[q, Enter] quit
+[1, c]          create a new bookmark for the current directory
+[2, e]          edit the bookmarks
+[q, qq, Enter]  quit
 """.strip())
     print()
     while True:
@@ -140,7 +140,7 @@ def go_interactive() -> None:
             print()
             print('bye')
             break
-        if inp in ('q', ''):
+        if inp in ('q', 'qq', ''):
             print('bye')
             break
         elif inp in ('1', 'c'):
