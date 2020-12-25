@@ -214,6 +214,16 @@ Provide an alias or use one of these options:
     print(text, file=file)
 
 
+def create_tmp_send() -> None:
+    """
+    Create /tmp/send silently.
+    """
+    try:
+        os.mkdir("/tmp/send")
+    except:
+        pass
+
+
 def main() -> None:
     """
     Controller.
@@ -244,4 +254,5 @@ def main() -> None:
 ##############################################################################
 
 if __name__ == "__main__":
+    create_tmp_send()
     main()
