@@ -18,7 +18,7 @@ Installation
   variable `QJ` to point on `quickjump.py`.
 * Open a new terminal and issue the command `qj`.
 
-Author: Laszlo Szathmary, jabba.laci@gmail.com, 2019
+Author: Laszlo Szathmary, jabba.laci@gmail.com, 2019--2022
 GitHub: https://github.com/jabbalaci/quickjump
 """
 
@@ -33,7 +33,27 @@ from typing import Dict, List, Tuple
 NOT_FOUND, FOUND = range(2)
 HOME = os.path.expanduser("~")
 DB_FILE = f"{HOME}/Dropbox/quickjump.json"
-VERSION = "0.1.1"
+VERSION = "0.2.0"
+
+
+def LD(s: str, t: str) -> int:
+    """Levenshtein distance"""
+    s = ' ' + s
+    t = ' ' + t
+    d = {}
+    S = len(s)
+    T = len(t)
+    for i in range(S):
+        d[i, 0] = i
+    for j in range (T):
+        d[0, j] = j
+    for j in range(1, T):
+        for i in range(1, S):
+            if s[i] == t[j]:
+                d[i, j] = d[i-1, j-1]
+            else:
+                d[i, j] = min(d[i-1, j] + 1, d[i, j-1] + 1, d[i-1, j-1] + 1)
+    return d[S-1, T-1]
 
 
 def verify_db(db: Dict[str, str]) -> None:
@@ -115,7 +135,7 @@ def list_db(db: Dict[str, str], file=sys.stdout) -> None:
     List the content of the database in a readable format.
     """
     for k, v in db.items():
-        print(f"{v}\t{k}", file=file)
+        print(f"{v}\t\t{k}", file=file)
     #
     if db and file == sys.stdout:
         print('-' * 78, file=file)
@@ -147,13 +167,13 @@ def go_interactive() -> None:
             my_cwd = os.getcwd()
             if my_cwd in db.keys():
                 print("Warning! The current directory has already been bookmarked!")
-                print("{0}\t{1}".format(db[my_cwd], my_cwd))
+                print("{0}\t\t{1}".format(db[my_cwd], my_cwd))
                 continue
             # else, if not yet bookmarked
             my_hash = generate_hash(db)
             db[my_cwd] = my_hash
             save_db(DB_FILE, db)
-            print(f"{my_hash}\t{my_cwd}")
+            print(f"{my_hash}\t\t{my_cwd}")
         elif inp in ('2', 'e'):
             editor = os.getenv("EDITOR")
             cmd = f"{editor} {DB_FILE}"
@@ -182,6 +202,11 @@ def expand_home(path: str) -> str:
     return path
 
 
+def find_similar_words(word: str, words: List[str]) -> List[str]:
+    result: List[str] = sorted(words, key=lambda w: LD(word, w))
+    return result
+
+
 def find_directory(my_hash: str) -> Tuple[str, int]:
     """
     The database contains pairs of directory names and their corresponding hashes.
@@ -195,6 +220,8 @@ def find_directory(my_hash: str) -> Tuple[str, int]:
     #
     if my_hash not in d2:
         print("# no such bookmark", file=sys.stderr)
+        tips = find_similar_words(my_hash, list(d2.keys()))[:3]
+        print("# similar bookmarks: {0}".format(", ".join(tips)), file=sys.stderr)
         err_code = NOT_FOUND
     #
     return expand_home(d2.get(my_hash, os.getcwd())), err_code
