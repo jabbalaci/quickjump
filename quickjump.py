@@ -33,7 +33,13 @@ from typing import Dict, List, Tuple
 NOT_FOUND, FOUND = range(2)
 HOME = os.path.expanduser("~")
 DB_FILE = f"{HOME}/Dropbox/quickjump.json"
-VERSION = "0.2.0"
+VERSION = "0.2.1"
+DEFAULT_EDITOR = "code" # VS Code
+# DEFAULT_EDITOR = os.getenv("EDITOR")
+
+
+def get_editor() -> str:
+    return DEFAULT_EDITOR
 
 
 def LD(s: str, t: str) -> int:
@@ -148,9 +154,10 @@ def go_interactive() -> None:
     db = read_db(DB_FILE)
     list_db(db)
     print("""
-[1, c]          create a new bookmark for the current directory
-[2, e]          edit the bookmarks
-[q, qq, Enter]  quit
+[1 c a]        create (add) a new bookmark for the current directory
+[2 e]          edit the bookmarks
+[3]            verify bookmarks (check if the JSON file is syntactically correct)
+[q qq Enter]   quit
 """.strip())
     print()
     while True:
@@ -163,7 +170,7 @@ def go_interactive() -> None:
         if inp in ('q', 'qq', ''):
             print('bye')
             break
-        elif inp in ('1', 'c'):
+        elif inp in ('1', 'c', 'a'):
             my_cwd = os.getcwd()
             if my_cwd in db.keys():
                 print("Warning! The current directory has already been bookmarked!")
@@ -175,7 +182,7 @@ def go_interactive() -> None:
             save_db(DB_FILE, db)
             print(f"{my_hash}\t\t{my_cwd}")
         elif inp in ('2', 'e'):
-            editor = os.getenv("EDITOR")
+            editor = get_editor()
             cmd = f"{editor} {DB_FILE}"
             os.system(cmd)
             print()
@@ -183,6 +190,13 @@ def go_interactive() -> None:
             print()
             go_interactive()
             break
+        elif inp in ('3', ):
+            try:
+                read_db(DB_FILE)
+            except:
+                print("Error: The database file has a syntax error.")
+            else:
+                print("The database file looks good.")
         else:
             print("Wat?")
         # endif
