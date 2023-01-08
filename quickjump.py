@@ -34,7 +34,7 @@ NOT_FOUND, FOUND = range(2)
 HOME = os.path.expanduser("~")
 DB_FILE = f"{HOME}/Dropbox/quickjump.json"
 VERSION = "0.2.1"
-DEFAULT_EDITOR = "code" # VS Code
+DEFAULT_EDITOR = "code"  # VS Code
 # DEFAULT_EDITOR = os.getenv("EDITOR")
 
 
@@ -44,22 +44,22 @@ def get_editor() -> str:
 
 def LD(s: str, t: str) -> int:
     """Levenshtein distance"""
-    s = ' ' + s
-    t = ' ' + t
+    s = " " + s
+    t = " " + t
     d = {}
     S = len(s)
     T = len(t)
     for i in range(S):
         d[i, 0] = i
-    for j in range (T):
+    for j in range(T):
         d[0, j] = j
     for j in range(1, T):
         for i in range(1, S):
             if s[i] == t[j]:
-                d[i, j] = d[i-1, j-1]
+                d[i, j] = d[i - 1, j - 1]
             else:
-                d[i, j] = min(d[i-1, j] + 1, d[i, j-1] + 1, d[i-1, j-1] + 1)
-    return d[S-1, T-1]
+                d[i, j] = min(d[i - 1, j] + 1, d[i, j - 1] + 1, d[i - 1, j - 1] + 1)
+    return d[S - 1, T - 1]
 
 
 def verify_db(db: Dict[str, str]) -> None:
@@ -144,7 +144,7 @@ def list_db(db: Dict[str, str], file=sys.stdout) -> None:
         print(f"{v}\t\t{k}", file=file)
     #
     if db and file == sys.stdout:
-        print('-' * 78, file=file)
+        print("-" * 78, file=file)
 
 
 def go_interactive() -> None:
@@ -153,24 +153,26 @@ def go_interactive() -> None:
     """
     db = read_db(DB_FILE)
     list_db(db)
-    print("""
+    print(
+        """
 [1 c a]        create (add) a new bookmark for the current directory
 [2 e]          edit the bookmarks
-[3]            verify bookmarks (check if the JSON file is syntactically correct)
+[3 v]          verify bookmarks (check if the JSON file is syntactically correct)
 [q qq Enter]   quit
-""".strip())
+""".strip()
+    )
     print()
     while True:
         try:
             inp = input("-> ").strip()
         except (KeyboardInterrupt, EOFError):
             print()
-            print('bye')
+            print("bye")
             break
-        if inp in ('q', 'qq', ''):
-            print('bye')
+        if inp in ("q", "qq", ""):
+            print("bye")
             break
-        elif inp in ('1', 'c', 'a'):
+        elif inp in ("1", "c", "a"):
             my_cwd = os.getcwd()
             if my_cwd in db.keys():
                 print("Warning! The current directory has already been bookmarked!")
@@ -181,7 +183,7 @@ def go_interactive() -> None:
             db[my_cwd] = my_hash
             save_db(DB_FILE, db)
             print(f"{my_hash}\t\t{my_cwd}")
-        elif inp in ('2', 'e'):
+        elif inp in ("2", "e"):
             editor = get_editor()
             cmd = f"{editor} {DB_FILE}"
             os.system(cmd)
@@ -190,7 +192,7 @@ def go_interactive() -> None:
             print()
             go_interactive()
             break
-        elif inp in ('3', ):
+        elif inp in ("3", "v"):
             try:
                 read_db(DB_FILE)
             except:
@@ -274,7 +276,7 @@ def main() -> None:
     If the user provided a bookmark, then return the corresponding directory path.
     """
     args = sys.argv[1:]
-    if len(args) == 0:    # if no command-line parameters are given
+    if len(args) == 0:  # if no command-line parameters are given
         go_interactive()
     else:
         param = args[0]
@@ -291,6 +293,7 @@ def main() -> None:
             if err_code == FOUND:
                 print(f'# cd "{dname}"', file=sys.stderr)
             print(dname)
+
 
 ##############################################################################
 
