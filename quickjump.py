@@ -18,7 +18,7 @@ Installation
   variable `QJ` to point on `quickjump.py`.
 * Open a new terminal and issue the command `qj`.
 
-Author: Laszlo Szathmary, jabba.laci@gmail.com, 2019--2022
+Author: Laszlo Szathmary, jabba.laci@gmail.com, 2019--2023
 GitHub: https://github.com/jabbalaci/quickjump
 """
 
@@ -33,7 +33,7 @@ from typing import Dict, List, Tuple
 NOT_FOUND, FOUND = range(2)
 HOME = os.path.expanduser("~")
 DB_FILE = f"{HOME}/Dropbox/quickjump.json"
-VERSION = "0.2.1"
+VERSION = "0.2.2"
 DEFAULT_EDITOR = "code"  # VS Code
 # DEFAULT_EDITOR = os.getenv("EDITOR")
 
@@ -83,6 +83,14 @@ def read_db(fname: str) -> Dict[str, str]:
     Key / value pairs are directory names and their associated shortcuts (the bookmarks).
     """
     db: Dict[str, str] = {}
+    if not os.path.isfile(fname):
+        print("# The database file doesn't exist. Creating an empty one.")
+        if save_db(fname, db):
+            print("# success")
+        else:
+            print("# Error: the database file couldn't be created. Aborting.")
+            exit(1)
+        #
     try:
         with open(fname) as f:
             db = json.load(f)
@@ -93,15 +101,19 @@ def read_db(fname: str) -> Dict[str, str]:
     return db
 
 
-def save_db(fname: str, db: Dict[str, str]) -> None:
+def save_db(fname: str, db: Dict[str, str]) -> bool:
     """
     Save changes in the database.
     """
+    status = True
     try:
         with open(fname, "w") as f:
             json.dump(db, f, indent=2)
     except:
+        status = False
         print(f"Warning! The database couldn't be saved to {DB_FILE}")
+    #
+    return status
 
 
 def shuffled(lst: List[str]) -> List[str]:

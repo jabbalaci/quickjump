@@ -32,7 +32,8 @@ Installation
 * Add the content of `function.bash` / `function.zsh` to your shell's
   settings file (depending on what you use, Bash or ZSH). Modify the
   variable `QJ` to point on `quickjump.py`.
-* Open a new terminal and issue the command `qj`.
+* Open a new terminal and issue the command `qj`. If the database file
+  doesn't exist, an empty database file will be created automatically.
 
 Notes
 -----
