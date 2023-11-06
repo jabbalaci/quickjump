@@ -34,8 +34,8 @@ NOT_FOUND, FOUND = range(2)
 HOME = os.path.expanduser("~")
 DB_FILE = f"{HOME}/Dropbox/quickjump.json"
 VERSION = "0.2.2"
-DEFAULT_EDITOR = "code"  # VS Code
-# DEFAULT_EDITOR = os.getenv("EDITOR")
+# DEFAULT_EDITOR = "code"  # VS Code
+DEFAULT_EDITOR = os.getenv("EDITOR")
 
 
 def get_editor() -> str:
@@ -108,7 +108,7 @@ def save_db(fname: str, db: Dict[str, str]) -> bool:
     status = True
     try:
         with open(fname, "w") as f:
-            json.dump(db, f, indent=2)
+            json.dump(db, f, indent=4)
     except:
         status = False
         print(f"Warning! The database couldn't be saved to {DB_FILE}")
@@ -279,6 +279,10 @@ def create_tmp_send() -> None:
         pass
 
 
+def clean(s: str) -> str:
+    return s.removesuffix("/")
+
+
 def main() -> None:
     """
     Controller.
@@ -292,6 +296,7 @@ def main() -> None:
         go_interactive()
     else:
         param = args[0]
+        param = clean(param)
         if param in ("-h", "--help"):
             print_help(file=sys.stderr)
             print(os.getcwd())
