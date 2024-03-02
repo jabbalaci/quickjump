@@ -218,6 +218,7 @@ def go_interactive() -> None:
             editor = DEFAULT_EDITOR
             cmd = f"{editor} {DB_FILE}"
             os.system(cmd)
+            db = read_db(DB_FILE)
             save_db(DB_FILE, db)  # it'll simplify the DB
             print()
             print("** reload **")
