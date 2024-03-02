@@ -18,7 +18,7 @@ Installation
   variable `QJ` to point on `quickjump.py`.
 * Open a new terminal and issue the command `qj`.
 
-Author: Laszlo Szathmary, jabba.laci@gmail.com, 2019--2023
+Author: Laszlo Szathmary, jabba.laci@gmail.com, 2019--2024
 GitHub: https://github.com/jabbalaci/quickjump
 """
 
@@ -28,18 +28,18 @@ import os
 import random
 import readline
 import sys
-from typing import Dict, List, Tuple
+
+VERSION = "0.2.3"
 
 NOT_FOUND, FOUND = range(2)
 HOME = os.path.expanduser("~")
 DB_FILE = f"{HOME}/Dropbox/quickjump.json"
-VERSION = "0.2.2"
 # DEFAULT_EDITOR = "code"  # VS Code
 DEFAULT_EDITOR = os.getenv("EDITOR")
 
-
-def get_editor() -> str:
-    return DEFAULT_EDITOR
+if not DEFAULT_EDITOR:
+    print("Error: set your environment variable EDITOR")
+    sys.exit(1)
 
 
 def LD(s: str, t: str) -> int:
@@ -62,7 +62,7 @@ def LD(s: str, t: str) -> int:
     return d[S - 1, T - 1]
 
 
-def verify_db(db: Dict[str, str]) -> None:
+def verify_db(db: dict[str, str]) -> None:
     """
     Both the keys (directory names) and the values (hashes) must be unique.
     However, if you edit the bookmarks manually, uniqueness may break.
@@ -75,14 +75,14 @@ def verify_db(db: Dict[str, str]) -> None:
         exit(1)
 
 
-def read_db(fname: str) -> Dict[str, str]:
+def read_db(fname: str) -> dict[str, str]:
     """
     Read the database. You can store the database file in your Dropbox folder and
     thus it'll be shared among all your machines, or you can store it in the root
     of your home folder for instance and then it'll be unique on a given machine.
     Key / value pairs are directory names and their associated shortcuts (the bookmarks).
     """
-    db: Dict[str, str] = {}
+    db: dict[str, str] = {}
     if not os.path.isfile(fname):
         print("# The database file doesn't exist. Creating an empty one.")
         if save_db(fname, db):
@@ -101,10 +101,29 @@ def read_db(fname: str) -> Dict[str, str]:
     return db
 
 
-def save_db(fname: str, db: Dict[str, str]) -> bool:
+def simplify_db(db: dict[str, str]) -> dict[str, str]:
+    """
+    Convert /home/<user>/... prefixes to ~/... prefixes.
+    """
+    d: dict[str, str] = {}
+    for k, v in db.items():
+        new_k = k
+        if k.startswith(HOME):
+            new_k = "~" + k.removeprefix(HOME)
+        #
+        if new_k in d:
+            new_k = k  # revoke change
+        #
+        d[new_k] = v
+    #
+    return d
+
+
+def save_db(fname: str, db: dict[str, str]) -> bool:
     """
     Save changes in the database.
     """
+    db = simplify_db(db)
     status = True
     try:
         with open(fname, "w") as f:
@@ -116,7 +135,7 @@ def save_db(fname: str, db: Dict[str, str]) -> bool:
     return status
 
 
-def shuffled(lst: List[str]) -> List[str]:
+def shuffled(lst: list[str]) -> list[str]:
     """
     Return a shuffled copy of the input list. The input list is not modified.
     """
@@ -133,7 +152,7 @@ def string_to_md5(content: str) -> str:
     return hashlib.md5(encoded).hexdigest()
 
 
-def generate_hash(db: Dict[str, str]) -> str:
+def generate_hash(db: dict[str, str]) -> str:
     """
     Create a unique 3 characters long hash for the current directory.
     """
@@ -148,7 +167,7 @@ def generate_hash(db: Dict[str, str]) -> str:
     return my_hash
 
 
-def list_db(db: Dict[str, str], file=sys.stdout) -> None:
+def list_db(db: dict[str, str], file=sys.stdout) -> None:
     """
     List the content of the database in a readable format.
     """
@@ -196,9 +215,10 @@ def go_interactive() -> None:
             save_db(DB_FILE, db)
             print(f"{my_hash}\t\t{my_cwd}")
         elif inp in ("2", "e"):
-            editor = get_editor()
+            editor = DEFAULT_EDITOR
             cmd = f"{editor} {DB_FILE}"
             os.system(cmd)
+            save_db(DB_FILE, db)  # it'll simplify the DB
             print()
             print("** reload **")
             print()
@@ -230,12 +250,12 @@ def expand_home(path: str) -> str:
     return path
 
 
-def find_similar_words(word: str, words: List[str]) -> List[str]:
-    result: List[str] = sorted(words, key=lambda w: LD(word, w))
+def find_similar_words(word: str, words: list[str]) -> list[str]:
+    result: list[str] = sorted(words, key=lambda w: LD(word, w))
     return result
 
 
-def find_directory(my_hash: str) -> Tuple[str, int]:
+def find_directory(my_hash: str) -> tuple[str, int]:
     """
     The database contains pairs of directory names and their corresponding hashes.
     Now, the input is a hash and we want to retrieve its corresponding directory name.
@@ -287,7 +307,7 @@ def main() -> None:
     """
     Controller.
 
-    If no command-line parameter was given, then go to interactive mode.
+    If no command-line argument was given, then go to interactive mode.
     If the user asked the list of bookmarks, then show the bookmarks and quit.
     If the user provided a bookmark, then return the corresponding directory path.
     """
