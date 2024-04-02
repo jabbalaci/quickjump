@@ -26,10 +26,10 @@ import hashlib
 import json
 import os
 import random
-import readline
+import readline  # noqa
 import sys
 
-VERSION = "0.2.3"
+VERSION = "0.2.4"
 
 NOT_FOUND, FOUND = range(2)
 HOME = os.path.expanduser("~")
@@ -171,8 +171,10 @@ def list_db(db: dict[str, str], file=sys.stdout) -> None:
     """
     List the content of the database in a readable format.
     """
+    longest = max(len(v) for v in db.values())
     for k, v in db.items():
-        print(f"{v}\t\t{k}", file=file)
+        extra_spaces = " " * (longest - len(v))
+        print(f"{v}{extra_spaces}  ->  {k}", file=file)
     #
     if db and file == sys.stdout:
         print("-" * 78, file=file)
@@ -263,6 +265,7 @@ def find_directory(my_hash: str) -> tuple[str, int]:
     If found, it returns the directory name and the FOUND error code.
     If not found, it returns the path of the current directory and the NOT_FOUND error code.
     """
+    my_hash = my_hash.split("/")[0]
     db = read_db(DB_FILE)
     d2 = {v: k for k, v in db.items()}
     err_code = FOUND
@@ -304,6 +307,23 @@ def clean(s: str) -> str:
     return s.removesuffix("/")
 
 
+def find_destination_directory(dname: str, parts: list[str]) -> str:
+    result = dname
+    for part in parts:
+        dirs = sorted([e for e in os.listdir(result) if os.path.isdir(os.path.join(result, e))])
+        for _dir in dirs:
+            if _dir.startswith(part):
+                result = os.path.join(result, _dir)
+                break
+            #
+        else:  # nobreak
+            # if nothing was found: break out of the outer loop
+            break
+        #
+    #
+    return result
+
+
 def main() -> None:
     """
     Controller.
@@ -329,7 +349,13 @@ def main() -> None:
             my_hash = param
             dname, err_code = find_directory(my_hash)
             if err_code == FOUND:
-                print(f'# cd "{dname}"', file=sys.stderr)
+                if "/" not in my_hash:
+                    print(f'# cd "{dname}"', file=sys.stderr)
+                else:
+                    dname = find_destination_directory(dname, my_hash.split("/")[1:])
+                    print(f'# cd "{dname}"', file=sys.stderr)
+                #
+            #
             print(dname)
 
 
