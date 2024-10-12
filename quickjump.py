@@ -171,6 +171,9 @@ def list_db(db: dict[str, str], file=sys.stdout) -> None:
     """
     List the content of the database in a readable format.
     """
+    if len(db) == 0:
+        return
+    # else
     longest = max(len(v) for v in db.values())
     for k, v in db.items():
         extra_spaces = " " * (longest - len(v))
