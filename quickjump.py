@@ -18,7 +18,7 @@ Installation
   variable `QJ` to point on `quickjump.py`.
 * Open a new terminal and issue the command `qj`.
 
-Author: Laszlo Szathmary, jabba.laci@gmail.com, 2019--2024
+Author: Laszlo Szathmary, jabba.laci@gmail.com, 2019--2025
 GitHub: https://github.com/jabbalaci/quickjump
 """
 
@@ -29,13 +29,14 @@ import random
 import readline  # noqa
 import sys
 
-VERSION = "0.2.4"
+VERSION = "0.2.5"
 
 NOT_FOUND, FOUND = range(2)
 HOME = os.path.expanduser("~")
 DB_FILE = f"{HOME}/Dropbox/quickjump.json"
 # DEFAULT_EDITOR = "code"  # VS Code
 DEFAULT_EDITOR = os.getenv("EDITOR")
+FEEDBACK = False
 
 if not DEFAULT_EDITOR:
     print("Error: set your environment variable EDITOR")
@@ -353,10 +354,12 @@ def main() -> None:
             dname, err_code = find_directory(my_hash)
             if err_code == FOUND:
                 if "/" not in my_hash:
-                    print(f'# cd "{dname}"', file=sys.stderr)
+                    if FEEDBACK:
+                        print(f'# cd "{dname}"', file=sys.stderr)
                 else:
                     dname = find_destination_directory(dname, my_hash.split("/")[1:])
-                    print(f'# cd "{dname}"', file=sys.stderr)
+                    if FEEDBACK:
+                        print(f'# cd "{dname}"', file=sys.stderr)
                 #
             #
             print(dname)
