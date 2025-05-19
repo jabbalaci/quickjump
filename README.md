@@ -7,8 +7,7 @@ It's like a URL shortener but it's designed for your local machine.
 Supported platforms
 -------------------
 
-I tried it under Linux only. It works with Bash and ZSH too. I think it
-should also work under Mac OS.
+I tried it under Linux only. It works with Bash, ZSH and Fish shell too. I think it should also work under Mac OS.
 
 Demo
 ----
@@ -32,6 +31,7 @@ Installation
 * Add the content of `function.bash` / `function.zsh` to your shell's
   settings file (depending on what you use, Bash or ZSH). Modify the
   variable `QJ` to point on `quickjump.py`.
+* If you have Fish shell, read the comments in `function.fish`.
 * Open a new terminal and issue the command `qj`. If the database file
   doesn't exist, an empty database file will be created automatically.
 
