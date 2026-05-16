@@ -1,3 +1,9 @@
+**Update (May 16, 2026):** [QJump](https://github.com/jabbalaci/qjump) is the
+successor to this project, rewritten in Nim (a compiled language) with some improvements.
+While QuickJump still works fine, I recommend switching to QJump,
+as future development will happen there.
+
+
 QuickJump
 =========
 
@@ -42,3 +48,11 @@ QuickJump generates a hash for a directory, it'll be the bookmark. Of course,
 you can change it by editing the database file (`quickjump.json`) manually.
 Just make sure that all bookmarks are unique. The software generates 3 characters
 long bookmarks but you can use shorter / longer bookmarks if you want.
+
+Links
+-----
+
+* [QJump](https://github.com/jabbalaci/qjump) is the successor to this project,
+  rewritten in Nim (a compiled language) with some improvements.
+  While QuickJump still works fine, I recommend switching to QJump,
+  as future development will happen there.

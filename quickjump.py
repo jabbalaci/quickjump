@@ -29,7 +29,7 @@ import random
 import readline  # noqa
 import sys
 
-VERSION = "0.2.5"
+VERSION = "0.2.6"
 
 NOT_FOUND, FOUND = range(2)
 HOME = os.path.expanduser("~")
@@ -314,7 +314,9 @@ def clean(s: str) -> str:
 def find_destination_directory(dname: str, parts: list[str]) -> str:
     result = dname
     for part in parts:
-        dirs = sorted([e for e in os.listdir(result) if os.path.isdir(os.path.join(result, e))])
+        dirs = sorted(
+            [e for e in os.listdir(result) if os.path.isdir(os.path.join(result, e))]
+        )
         for _dir in dirs:
             if _dir.startswith(part):
                 result = os.path.join(result, _dir)
